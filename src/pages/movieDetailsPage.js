@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useState, useEffect}  from "react";
+import { useParams } from "react-router-dom";
 import MovieHeader from "../components/headerMovie/";
 import MovieDetails from "../components/movieDetails/";
 import Grid from "@material-ui/core/Grid";
@@ -20,11 +21,43 @@ const useStyles = makeStyles((theme) => ({
 
 const MoviePage = (props) => {
   const classes = useStyles();
-  const movie = props.movie;
-  const images = props.images;
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    fetch(
+      `https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.REACT_APP_TMDB_KEY}`
+    )
+      .then((res) => {
+        return res.json();
+      })
+      .then((movie) => {
+        // console.log(movie)
+        setMovie(movie);
+      });
+  }, [id]);
+
+  useEffect(() => {
+    fetch(
+      `https://api.themoviedb.org/3/movie/${id}/images?api_key=${process.env.REACT_APP_TMDB_KEY}`
+    )
+      .then((res) => res.json())
+      .then((json) => json.posters)
+      .then((images) => {
+        // console,log(images)
+        setImages(images);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <>
+    <img
+              src={`https://image.tmdb.org/t/p/w500/${images.file_path}`}
+              alt={images.file_path}
+          />
       {movie ? (
         <>
           <MovieHeader movie={movie} />
